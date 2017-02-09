@@ -38,6 +38,8 @@ public class SSHClient {
     private String userName;
     private String password;
     private String host;
+    private Session session=null;
+    private ChannelShell channel=null;
 
     /**
      * @param host
@@ -101,7 +103,6 @@ public class SSHClient {
         try {
             expect.send(strCommandPattern);
             expect.send(ENTER_CHARACTER);
-
         } catch (Exception ex) {
             ex.printStackTrace();
             return false;
@@ -115,7 +116,7 @@ public class SSHClient {
      */
     private Expect4j SSH() throws Exception {
         JSch jsch = new JSch();
-        Session session = jsch.getSession(userName, host, SSH_PORT);
+        session = jsch.getSession(userName, host, SSH_PORT);
         if (password != null) {
             session.setPassword(password);
         }
@@ -123,7 +124,7 @@ public class SSHClient {
         config.put("StrictHostKeyChecking", "no");
         session.setConfig(config);
         session.connect(60000);
-        ChannelShell channel = (ChannelShell) session.openChannel("shell");
+        channel = (ChannelShell) session.openChannel("shell");
         Expect4j expect = new Expect4j(channel.getInputStream(), channel.getOutputStream());
         channel.connect();
         return expect;
@@ -144,6 +145,14 @@ public class SSHClient {
      *
      */
     private void closeConnection() {
+        if (channel != null)
+        {
+            channel.disconnect();
+        }
+        if (session != null)
+        {
+            session.disconnect();
+        }
         if (expect != null) {
             expect.close();
         }
@@ -153,15 +162,12 @@ public class SSHClient {
      * @param args
      */
     public static void main(String[] args) {
-        final SSHClient ssh = new SSHClient("localhost", "user", "user");
+        final SSHClient ssh = new SSHClient("192.168.0.104", "decipher16", "decipher@123");
         List<String> cmdsToExecute = new ArrayList<String>();
-        cmdsToExecute.add("service mysql status");
+        cmdsToExecute.add("ls");
         ssh.execute(cmdsToExecute);
         ssh.expect.registerBufferChangeLogger(ssh.getBufferLogger());
-
         System.out.println("Program exited");
-
-
     }
 
 
