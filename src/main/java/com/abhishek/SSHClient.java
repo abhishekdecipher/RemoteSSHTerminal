@@ -38,8 +38,8 @@ public class SSHClient {
     private String userName;
     private String password;
     private String host;
-    private Session session=null;
-    private ChannelShell channel=null;
+    private Session session = null;
+    private ChannelShell channel = null;
 
     /**
      * @param host
@@ -142,27 +142,22 @@ public class SSHClient {
     }
 
     /**
-     *
+     * Closing all the used resources by the application
      */
     private void closeConnection() {
         if (channel != null)
-        {
             channel.disconnect();
-        }
         if (session != null)
-        {
             session.disconnect();
-        }
-        if (expect != null) {
+        if (expect != null)
             expect.close();
-        }
     }
 
     /**
      * @param args
      */
     public static void main(String[] args) {
-        final SSHClient ssh = new SSHClient("192.168.0.104", "decipher16", "decipher@123");
+        final SSHClient ssh = new SSHClient("localhost", "user", "user");
         List<String> cmdsToExecute = new ArrayList<String>();
         cmdsToExecute.add("ls");
         ssh.execute(cmdsToExecute);
